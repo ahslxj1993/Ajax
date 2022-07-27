@@ -95,11 +95,15 @@ $("#insert_form").submit(function (event){
 	
 	selectData("post");
 })
-
 //수정버튼 클릭
-$("button").click(function(){
-	$("button[type=submit]").css("background","green").text('수정완료');
-});//btn-warning click
+$(document).on('click',"#result tr>td:nth-child(5)>button", function () {
+	$('button[type=submit]').css("background","green").text('수정완료');
+	
+	$('#name').val($(this).parent().prev().prev().prev().text());
+	$('#price').val($(this).parent().prev().prev().text());
+	$('#maker').val($(this).parent().prev().text());
+})
+
 </script>
 
 </body>
