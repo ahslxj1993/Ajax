@@ -26,21 +26,41 @@ public class ServletGo3 extends HttpServlet{
 		System.out.println(array);
 	}
 	
+	
+	//삭제, 추가, 수정
 	protected void doPost (HttpServletRequest request, HttpServletResponse response)
 	throws ServletException, IOException {
-		VO vo = new VO();
-		vo.setName(request.getParameter("name"));
-		vo.setPrice(Integer.parseInt(request.getParameter("price")));
-		vo.setMaker(request.getParameter("maker"));
+		int result = -1;
 		DAO dao = new DAO();
-		int result = dao.insert(vo);
-		if(result==1) {
-			System.out.println("삽입 성공");
-		} else {
-			System.out.println("삽입 실패");
+		String label = request.getParameter("label");
+		switch (label) {
+			case "삭제": 
+				result = dao.delete(Integer.parseInt(request.getParameter("id")));
+				break;
+				
+			case "추가":
+			case "수정완료":
+				VO vo = new VO();
+				vo.setName(request.getParameter("name"));
+				vo.setPrice(Integer.parseInt(request.getParameter("price").replaceAll(",","")));
+				vo.setMaker(request.getParameter("maker"));
+				
+				if(label.equals("수정완료")) {
+					vo.setId(Integer.parseInt(request.getParameter("id")));
+					result = dao.update(vo);
+				} else {
+					result = dao.insert(vo);
+				}
+				
 		}
-		
-		doGet(request, response);
+		if (result ==1) {
+			System.out.println(label + " 성공");
+			doGet(request, response);
+		} else {
+			System.out.println(label + " 실패");
+			response.setContentType("text/html;charset=utf-8");
+			response.getWriter().print(label+" 실패");
+		}
 	}
 
 }

@@ -118,7 +118,85 @@ public int insert(VO vo) {
 		 }
 	 }//finally end
 	return result;
-}
+}//insert end
+
+
+public int delete(int id) {
+	Connection con = null;
+	 PreparedStatement pstmt = null;
+	 
+	 int result =0; //초기값
+	 try {
+		 con = ds.getConnection();
+		 
+		 String delete_sql = "DELETE FROM products "
+		 					+ " WHERE id = ?";
+		 
+		 //PreparedStatement 객체 얻기
+		 pstmt = con.prepareStatement(delete_sql);
+		 pstmt.setInt(1,id);
+		 result = pstmt.executeUpdate();
+		 
+	 } catch (Exception  se) {
+		 se.printStackTrace();
+	 } finally {
+		 try {
+			 if (pstmt !=null)
+				 pstmt.close();
+		 } catch (SQLException e) {
+			 System.out.println(e.getMessage());
+		 }
+		 
+		 try {
+			 if (con != null)
+				 con.close();
+		 } catch (Exception e) {
+			 System.out.println(e.getMessage());
+		 }
+	 }//finally end
+	return result;
+}//delete end
+
+
+public int update(VO vo) {
+	Connection con = null;
+	 PreparedStatement pstmt = null;
+	 
+	 int result =0; //초기값
+	 try {
+		 con = ds.getConnection();
+		 
+		 String insert_sql = "UPDATE products "
+		 					+ "	SET name = ?, price = ?, maker = ? "
+		 					+ " WHERE id = ?";
+		 
+		 //PreparedStatement 객체 얻기
+		 pstmt = con.prepareStatement(insert_sql);
+		 pstmt.setString(1, vo.getName());
+		 pstmt.setInt(2, vo.getPrice());
+		 pstmt.setString(3, vo.getMaker());
+		 pstmt.setInt(4, vo.getId());
+		 result = pstmt.executeUpdate();
+		 
+	 } catch (Exception  se) {
+		 se.printStackTrace();
+	 } finally {
+		 try {
+			 if (pstmt !=null)
+				 pstmt.close();
+		 } catch (SQLException e) {
+			 System.out.println(e.getMessage());
+		 }
+		 
+		 try {
+			 if (con != null)
+				 con.close();
+		 } catch (Exception e) {
+			 System.out.println(e.getMessage());
+		 }
+	 }//finally end
+	return result;
+}//update end
 
 
 }//DAO end

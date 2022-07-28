@@ -39,13 +39,19 @@
 </div>
 
 <script>
-function selectData(m){
+//get방식은 전송시 데이터 가져오기,  post 방식은 전송시 삽입 또는 삭제 또는 수정과 데이터 가져오기
+function selectData(method, label){
 	$("#result").remove()
-	var senddata = $("#insert_form").serialize();
+	if(label == '추가' || label == '수정완료'){
+		var senddata = $("#insert_form").serialize()+ "&label="+label;
+	} else if (label == '삭제'){
+		var senddata = {id : $('input:hidden').val(), label : label};
+	}
+	
 	$.ajax({
-		type : m,
+		type : method, // "get" or "post"
 		url : "${pageContext.request.contextPath}/servlet_gson.bo2",
-		data : senddata,
+		data : senddata, //보낼 데이터
 		dataType : "json",
 		success : function (return_data) {
 			console.log("성공"+return_data);
@@ -81,20 +87,73 @@ function selectData(m){
 								+	"error status "+status+ "<br>"
 								+	"error 메세지 : "+ error +"</div>");
 		},//error
+		complete : function () {
+			console.log ('complete');
+			$('input[type=hidden]').remove();
+		} //complete
 	})//ajax end
-}//getData () end
+}//selectData () define end
 
-
+//초기화면에 데이터 표시
 selectData("get");
 
-//데이터 추가
+//데이터 추가 또는 수정
 $("#insert_form").submit(function (event){
 	
 	//기본 이벤트를 제거합니다
 	event.preventDefault();
 	
-	selectData("post");
+	//폼안의 button을 찾아 텍스트 노드를 구합니다
+	var label = $(this).find('button').text();
+	selectData('post',label);
+	
+	if(label == '수정완료'){
+		$('button:submit').text('추가').removeClass('btn-success').addClass('btn-primary');
+		$('button.btn-danger').prop("disabled",false); //수정완료 버튼을 클릭하면 삭제버튼 사용가능합니다.
+	}
+}) //submit end
+
+//수정버튼 클릭
+$('body').on('click',".btn.btn-warning", function () {
+	//클릭한 수정 버튼의 tr객체를 구합니다
+	var tr = $(this).parent().parent();
+	
+	//tr객체의 첫번째 자식 td의 텍스트 노드값을 구합니다
+	var id = tr.find('td:nth-child(1)').text();
+	//tr객체의 두번째 자식 td의 텍스트 노드값을 구합니다
+	var name = tr.find('td:nth-child(2)').text();
+	//tr객체의 세번째 자식 td의 텍스트 노드값을 구합니다
+	var price = tr.find('td:nth-child(3)').text();
+	//tr객체의 네번째 자식 td의 텍스트 노드값을 구합니다
+	var maker = tr.find('td:nth-child(4)').text();
+	
+	$('#name').val(name);
+	$('#price').val(price);
+	$('#maker').val(maker);
+	
+	//추가 버튼이 수정완료버튼으로 label과 색상을 바꿉니다.
+	$('button:submit').text('수정완료').removeClass('btn-primary').addClass('btn-success');
+	
+	//수정버튼을 여러번 누른 경우 아래의 문장으로 input:hidden 태그가 여러개 생길 수 있어 제거 합니다 
+	$('input:hidden').remove();
+	
+	//id값을 폼안의 버튼 뒤에 보이지 않게 추가합니다.
+	$('button:submit').after("<input type='hidden' name='id' value='"+id+"'>");
+	
+	//수정클릭시 수정 완료버튼을 클릭전까지는 삭제버튼을 비활성화로 만듭니다
+	$('button.btn-danger').prop('disabled',true);
 })
+
+//삭제버튼 클릭
+$('body').on('click','.btn.btn-danger',function () {
+	if (confirm('정말 삭제하시겠습니까?')) {
+		var tr = $(this).parent().parent();
+		var id = tr.find('td:nth-child(1)').text();
+		$('button:submit').after("<input type='hidden' name='id' value='"+id+"'>");
+		selectData('post',"삭제");
+	}
+})
+
 </script>
 
 </body>
